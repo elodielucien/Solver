@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+</head>
+
+<body>
+     <form id = "form">
+        <label><input type="text" id = "mot1" /> MOT1</label><br />
+        <label><input type="text" id = "mot2" /> + MOT2</label><br />
+        <label><input type="text" id = "mot3" /> = MOT3</label><br />
+        <br/> <br/>
+       
+        <input type = "submit" id = "solve" name = "solve"/>
+    
+
+     </form>
+   
+     <br/><br/>
+     <label><input type="text" id = "val1" /></label><br />
+     <label>+ <input type="text" id = "val2" /></label><br />
+     <label>= <input type="text" id = "val3" /></label><br />
+
+
+    <script>
+        
+         import {Solver} from 'finitedomain-master/finitedomain-master/src/solver';
+         var submit = document.getElementById('solve');
+         var form = document.getElementById('form');
+
+         form.addEventListener('submit', function() {
+            var m1 = document.getElementById('mot1').value;
+            var m2 = document.getElementById('mot2').value;
+            var m3 = document.getElementById('mot3').value;
+            
+            //résolution mot 1
+            var totalChiffreMot1 = 0;
+            for(i=0 ; i < m1.length ; i++) {
+                var lettre = m1.charAt(i);
+                let solver = new Solver();
+                solver.decl(lettre, [0,9]);
+                solver.solve();
+                console.log(solver.solutions);
+                //var data = fetch(solver.solutions);
+                //totalChiffreMot1 = totalChiffreMot1 + data;
+            }
+
+            document.getElementById('val1').value = solver.solutions;
+
+         })
+
+
+
+
+        
+        
+
+     
+
+    </script>
+
+</body>
+</html>
