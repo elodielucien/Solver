@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+</head>
+
+<body>
+
+        <form id = "form">
+                <label><input type="text" id = "lettre" /> Lettre</label><br />
+        </form>
+        <input type = "submit" id = "solve" name = "solve"/>
+
+        <label id="res">Solution</label>
+        
+
+    <script type = "module">
+      import Solver from "/src/solver.js";
+      var submit = document.getElementById('solve');
+      var form = document.getElementById('form');
+      var lettre = document.getElementById('lettre').nodeValue;
+
+      function solve() {
+        console.log("coucou");
+        let solver = new Solver();
+          var lettre = document.getElementById('lettre').nodeValue;
+          //ajout des contraintes 
+          solver.decl(lettre, [10,20]);
+          solver.gt(lettre, 14);
+          solver.lt(lettre, 17);
+          solver.neq(lettre, 16);
+
+          //résolution
+          solver.solve();
+
+          //affichage du résultat
+          console.log(solver.solutions);
+          console.log("coucou");
+      }
+
+      form.addEventListener('submit', solve);
+
+    </script>
+</body>
+
+</html>

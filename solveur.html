@@ -22,9 +22,11 @@
      <label>= <input type="text" id = "val3" /></label><br />
 
 
-    <script>
-        
-         import {Solver} from 'finitedomain-master/finitedomain-master/src';
+ 
+
+       <script  type = "module" src = 'finitedomain-master/finitedomain-master/src/solver.js'>
+
+         import {solver} from 'finitedomain-master/finitedomain-master/src';
          var submit = document.getElementById('solve');
          var form = document.getElementById('form');
          
@@ -53,6 +55,9 @@
          //    SEND
          //+   MORE
          //=  MONEY
+         //faire les 3 boucles en une boucle. a chaque itération : retenu précédente + l1 + l2... (4 contraintes)
+         //récupérer la taille du 3e et faire un parcourt jusqu'à la taille du 3eme 
+         let solver = new Solver(); 
          for (var i = m1.length - 1 ; i>=0 ; i --) {
             for (var j = m2.length - 1 ; j >= 0 ; j-- ) {
                for (var k = m3.length - 1 ; k >= 0 ; k-- ) {
@@ -62,26 +67,28 @@
                   var lettre3 = m3.charAt(k);
 
                   //On définit les contraintes : ce sont des propagateurs qui réduisent l'espace de solutions à chaque itération
-                  let solver = new Solver();
+                  
                   var totalLettres = (m1.concat(m2)).concat(m3); //On concatène les 3 mots en une chaîne de caractères
-                  var chaine = removeDoubles(totalLettres); // On enlève les doublons
+                  var chaine = removeDoubles(totalLettres); // On enlève les doublons (ex : SENDMOREMONEY)
                   
                   solver.distinct(chaine); //Toutes les lettres doivent avoir une valeur distincte
                   solver.nequ(m3.charAt(0), 0); //la première lettre du 3ème mot est différente de 0 (ex : M!= 0)
-                  solver.decl(lettre1,[0,9]);
+                  solver.decl(lettre1,[0,9]); //lettre 1 est un chiffre compris entre 0 et 9
                   solver.decl(lettre2,[0,9]);
                   solver.decl(lettre3,[0,9]);
-                  solver.plus(lettre1, lettre2, lettre3); //lettre1 + lettre2 = lettre3 (ex : D + E = Y, puis N + R = E, etc..)
-
+                  solver.plus(lettre1, lettre2, lettre3); //Retenue précedente + lettre1 + lettre2 = lettre3 (ex : D + E = Y, puis N + R = E, etc..)
+                  
                }
             }
          }
-         //on appelle la méthode solve() du solveur pour résoudre le puzzle
-         solver.solve();
 
          //On affiche les digit correspondants à chaque lettre 
-
-      }
+         for (var i = 0; i< totalLettres.length; i ++) {
+            //on appelle la méthode solve() du solveur pour résoudre le puzzle
+            solver.solve();
+            console.log(solver.solutions);
+         }
+      })
 
     </script>
 
