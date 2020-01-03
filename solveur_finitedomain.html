@@ -24,9 +24,9 @@
 
  
 
-       <script  type = "module" src = 'finitedomain-master/finitedomain-master/src/solver.js'>
-
-         import {solver} from 'finitedomain-master/finitedomain-master/src';
+       
+       <script type="module">
+         import {Solver} from 'http://localhost:3000/finitedomain/finitedomain-master/src/solver.js';
          var submit = document.getElementById('solve');
          var form = document.getElementById('form');
          
@@ -77,7 +77,7 @@
                   solver.decl(lettre2,[0,9]);
                   solver.decl(lettre3,[0,9]);
                   solver.plus(lettre1, lettre2, lettre3); //Retenue précedente + lettre1 + lettre2 = lettre3 (ex : D + E = Y, puis N + R = E, etc..)
-                  
+                  //+ M différent de 0 
                }
             }
          }
@@ -89,8 +89,7 @@
             console.log(solver.solutions);
          }
       })
-
-    </script>
+       </script>
 
 </body>
 
