@@ -27,9 +27,38 @@
        
        <script type="module">
          import {Solver} from 'http://localhost:3000/finitedomain/finitedomain-master/src/solver.js';
+
          var submit = document.getElementById('solve');
          var form = document.getElementById('form');
          
+
+         //détermine la longueur du plus long mot
+         function getLongestWord(mot1 , mot2, mot3) {
+            var longestLength = mot1.length;
+            var compter = 0;
+               
+            for (var i = 0 ; i < mot2.length ; i++) {  
+               compter ++; 
+            }
+
+            if(compter >= longestLength) { //on compare longestLength avec la longueur du 2e mot
+               longestLength = compter;
+            }
+
+            compter = 0; //on remet le compter à 0
+
+            for (var i = 0 ; i < mot3.length ; i++) {  
+               compter ++; 
+            }
+
+            if(compter >= longestLength) { //on compare longestLength avec la longueur du 3e mot
+               longestLength = compter;
+            }
+
+            return longestLength;
+
+         }
+
          //supprime les doublons dans une chaîne de caractères 
          function removeDoubles(string) {
             var mapping = {};
@@ -45,42 +74,55 @@
             }
 
 
-         form.addEventListener('submit', function() {
+         form.addEventListener('submit', function(e) {
+            e.preventDefault()
             var m1 = document.getElementById('mot1').value;
             var m2 = document.getElementById('mot2').value;
             var m3 = document.getElementById('mot3').value;
+
+            var totalLettres = (m1.concat(m2)).concat(m3); //On concatène les 3 mots en une chaîne de caractères
+            var chaine = removeDoubles(totalLettres); // On enlève les doublons (ex : SENDMOREMONEY)
+            var longest = getLongestWord(m1,m2,m3);
+            
+            var retenues = new Array(longest);
+      
+            let solver = new Solver(); 
+
+         //contraintes générales 
+     
+         //1
+         solver.distinct(chaine); //Toutes les lettres doivent avoir une valeur distincte
          
-         //On parcourt chaque mot du puzzle de droite à gauche (sens de résolution d'une addition posée), et on considère une lettre pour
-         //chaque mot
+       
+         //2 Chaque lettre est un digit compris entre 0 et 9
+         for(var i = 0 ; i < totalLettres.length ; i++) {
+            solver.decl(totalLettres.charAt(i), [0,9]); 
+         }
+
+
+        
+
+
+         //3 M != 0 
+         if (m3.length == longest) {
+            if (longest > m2.length && longest > m3.length) { //si les 3 mots ne sont pas de longueur égales (m3 plus long que les 2 autres)
+               solver.nequ(m3.charAt(0),0); //Première lettre du mot 3 n'est pas zéro (car est = à la retenue)
+            }
+         }
+
+         //4 Contraintes liant plusieures lettres et leurs retenues
+         //On parcourt les mots de la droite vers la gauche (sens de résolution d'une addition classique) et on définit les relations
+         //entre les lettres (digits) et leur retenue. 
          //    SEND
          //+   MORE
          //=  MONEY
-         //faire les 3 boucles en une boucle. a chaque itération : retenu précédente + l1 + l2... (4 contraintes)
-         //récupérer la taille du 3e et faire un parcourt jusqu'à la taille du 3eme 
-         let solver = new Solver(); 
-         for (var i = m1.length - 1 ; i>=0 ; i --) {
-            for (var j = m2.length - 1 ; j >= 0 ; j-- ) {
-               for (var k = m3.length - 1 ; k >= 0 ; k-- ) {
-
-                  var lettre1 = m1.charAt(i);
-                  var lettre2 = m2.charAt(j);
-                  var lettre3 = m3.charAt(k);
-
-                  //On définit les contraintes : ce sont des propagateurs qui réduisent l'espace de solutions à chaque itération
-                  
-                  var totalLettres = (m1.concat(m2)).concat(m3); //On concatène les 3 mots en une chaîne de caractères
-                  var chaine = removeDoubles(totalLettres); // On enlève les doublons (ex : SENDMOREMONEY)
-                  
-                  solver.distinct(chaine); //Toutes les lettres doivent avoir une valeur distincte
-                  solver.nequ(m3.charAt(0), 0); //la première lettre du 3ème mot est différente de 0 (ex : M!= 0)
-                  solver.decl(lettre1,[0,9]); //lettre 1 est un chiffre compris entre 0 et 9
-                  solver.decl(lettre2,[0,9]);
-                  solver.decl(lettre3,[0,9]);
-                  solver.plus(lettre1, lettre2, lettre3); //Retenue précedente + lettre1 + lettre2 = lettre3 (ex : D + E = Y, puis N + R = E, etc..)
-                  //+ M différent de 0 
+         //L'ensemble des contraintes obtenues à chaque itération forment des propagateurs qui réduisent l'espace de solutions
+         for (var i = longest - 1 ; i>=0 ; i --) {
+                  solver.plus(m1.charAt(i), m2.charAt(i), m3.charAt(i)); //m1.charAt(i) + m2.charAt(i) = m3.charAt(i) (ex : D + E = Y)
+            
+                  //+ gérer les retenues
                }
-            }
-         }
+  
 
          //On affiche les digit correspondants à chaque lettre 
          for (var i = 0; i< totalLettres.length; i ++) {
@@ -89,6 +131,8 @@
             console.log(solver.solutions);
          }
       })
+
+      window.solve = solve;
        </script>
 
 </body>

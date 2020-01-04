@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+</head>
+
+<body>
+
+        <form id = "form">
+                <label><input type="text" id = "mot1" /> Mot1</label><br />
+                <label><input type="text" id = "mot2" /> Mot2</label><br />
+                <label><input type="text" id = "mot3" /> Mot3</label><br />
+        </form>
+        <button id="button" onclick="solve()">Solve</button>
+        <label id="res">Solution</label>
+
+
+        <script type = "module">
+            import {Solver} from "http://localhost:3000/finitedomain/finitedomain-master/src/solver.js"
+            //détermine la longueur du plus long mot
+            function getLongestWord(mot1 , mot2, mot3) {
+                var longestLength = mot1.length;
+                var compter = 0;
+                
+                for (var i = 0 ; i < mot2.length ; i++) {  
+                compter ++; 
+                }
+
+                if(compter >= longestLength) { //on compare longestLength avec la longueur du 2e mot
+                longestLength = compter;
+                }
+
+                compter = 0; //on remet le compter à 0
+
+                for (var i = 0 ; i < mot3.length ; i++) {  
+                compter ++; 
+                }
+
+                if(compter >= longestLength) { //on compare longestLength avec la longueur du 3e mot
+                longestLength = compter;
+                }
+
+                return longestLength;
+
+            }
+
+
+            function solve() {
+                let solver = new Solver();
+                // on va séparer les lettres de chaque mot en mettant dans une liste (split)
+                let m1 = document.getElementById('mot1').value.split('')
+                let m2 = document.getElementById('mot2').value.split('')
+                let m3 = document.getElementById('mot3').value.split('')
+
+                // déclaration des retenues
+                let retenues = new Array(getLongestWord(m1, m2, m3))
+                let sommes = new Array(getLongestWord(m1, m2, m3))
+                let produits = new Array(getLongestWord(m1, m2, m3))
+                for(let i=0; i<retenues.length; i++){
+                    retenues[i] = "R"+i
+                    sommes[i] = "S"+i
+                    produits[i] = "P"+i
+                    solver.decl(retenues[i], [0, 1])
+                    solver.decl(produits[i], [0, 10])
+                    solver.decl(sommes[i], [0, 18])
+                }
+                
+
+
+
+
+
+                // déclaration des lettres
+                // d'abord on créé une liste à lettres uniques
+                let uniquesLettres = [...new Set(m1.concat(m2).concat(m3))]
+                for(let lettre of uniquesLettres){
+                    solver.decl(lettre, [0, 9])
+                }
+
+
+                function getRetenue(i1, i2){
+                    if(i1+i2 >= 10){
+                        return 1
+                    }else{
+                        return 0
+                    }
+                }
+
+                // on déclare une lettre qui vaut 0
+                solver.decl("ZERO", 0)
+                for (var i = retenues.length - 1 ; i>=0 ; i --) {
+                    let x1 = m1[i]
+                    let x2 = m2[i]
+                    let x3 = m3[i]
+                    
+                    /*
+                    let mulLettre = "P"+i
+                    let somLettre = "S"+i
+                    let mul = solver.mul(10, retenues[i], mulLettre)
+                    let som = solver.plus(x3,mul, somLettre)
+                    */
+                    //let res = solver.product(1, x3, 10, retenues[i], "res")
+
+                    
+                    //let m = solver.mul(10, retenues[i])
+                    //solver.plus(x1, x2, solver.plus(x3, m, sommes[i])); //m1.charAt(i) + m2.charAt(i) = m3.charAt(i) (ex : D + E = Y)
+                    
+                    //solver.mul(0.1, solver.sum([x1, x2, x3]), retenues[i])
+                    console.log(x1, x2, x3, retenues[i-1])
+                    solver.imp(''+x1+' + '+x2+' = '+x3+' + 10*'+retenues[i-1]+ '')
+                
+               }
+              
+
+
+                
+                //résolution
+                solver.solve();
+
+                //affichage du résultat
+                console.log(solver.solutions);
+                console.log("coucou");
+            }
+
+          window.solve = solve;
+
+        </script>
+
+</body>
+
+</html>
