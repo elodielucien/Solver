@@ -12,7 +12,14 @@
                 <label><input type="text" id = "mot3" /> Mot3</label><br />
         </form>
         <button id="button" onclick="solve()">Solve</button>
+
+        <br/>
+        <br/>
+
         <label id="res">Solution</label>
+        <p id="solution">
+
+        </p>
 
 
         <script type = "module">
@@ -44,13 +51,6 @@
 
                 return longestLength;
 
-            }
-
-            function longestExist(m1,m2,m3) {
-                if(m1.length != m2.length || m2.length != m3.length || m1.length != m3.length ) {
-                    return true
-                }
-                else {return false}
             }
 
 
@@ -107,10 +107,6 @@
                         }
                     }
 
-                    alert(tabM1)
-                    alert(tabM2)
-                    alert(tabM3)
-
                     // déclaration des retenues, sommes et produits que l'on va utiliser dans la déclaration des contraintes
                     let retenues = new Array(getLongestWord(m1, m2, m3))
                     let sommes = new Array(getLongestWord(m1, m2, m3))
@@ -133,7 +129,10 @@
                     // d'abord on créé une liste à lettres uniques
                     let uniquesLettres = [...new Set(m1.concat(m2).concat(m3))]
                     for (let lettre of uniquesLettres) {
-                        solver.decl(lettre, [0, 9])
+                        if (lettre == m1[0] || lettre == m2[0] ||lettre == m3[0]){ 
+                            solver.decl(lettre, [1, 9]) //la première lettre de chaque mot n'est pas 0
+                        }
+                        else {solver.decl(lettre, [0, 9])}
                     }
                     //chaque lettre correspond à un chiffre distinct
                     solver.distinct(uniquesLettres)
@@ -144,11 +143,10 @@
 
                         //on gère le cas i=0 (=> retenues[i-1] = undefined)
                         if(retenues[i-1] == undefined) {
-                            alert("dernière itération")
                             solver.sum(tabVariables,tabM3[i])
                             break
                         }
-                        else { alert("itération"+ i)
+                        else { 
                               //on définit produit[i] = 10 * retenues[i-1]
                               solver.mul(10, retenues[i - 1], produits[i])
                               //on définit sommes[i] = m3[i] + produits[i]
@@ -164,8 +162,9 @@
                     solver.solve();
 
                     //affichage du résultat
-                    console.log(solver.solutions);
-                    //affichage digit par digit 
+                    for(let letter of uniquesLettres) {
+                        console.log(letter + " : " +solver.solutions[1][letter])
+                    }
 
                 }
 
